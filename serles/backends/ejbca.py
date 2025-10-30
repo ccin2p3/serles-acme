@@ -1,12 +1,13 @@
 import base64
 import csv
-import requests
 import secrets
+
+import requests
 import zeep  # fedora package: python3-zeep.noarch
 from cryptography import x509  # python3-cryptography.x86_64
+from cryptography.hazmat.backends import default_backend as x509_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import pkcs7
-from cryptography.hazmat.backends import default_backend as x509_backend
 
 
 class EjbcaBackend:
@@ -72,7 +73,7 @@ class EjbcaBackend:
         self.client = zeep.Client(apiUrl, transport=transport)
         self.userData = self.client.get_type("ns0:userDataVOWS")
 
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         subjectAltName = ",".join(f"DNSNAME={name}" for name in subjectAltNames)
 
         csr_obj = x509.load_pem_x509_csr(csr, x509_backend())

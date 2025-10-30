@@ -1,6 +1,7 @@
 import subprocess
 from os.path import exists
 
+
 class Backend:
     def __init__(self, config):
         self.cacert = config['openssl']['cacert']
@@ -22,7 +23,7 @@ class Backend:
                 "-out", self.cacert,
             ])
 
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         x509 = subprocess.run([
             "openssl", "x509", "-req",
             "-CA", self.cacert,

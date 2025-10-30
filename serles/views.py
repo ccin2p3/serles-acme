@@ -1,17 +1,14 @@
 import jwcrypto.jwk  # fedora package: python3-jwcrypto.noarch
 import jwcrypto.jws
+from flask import g, make_response, request
+from flask_restful import Api, Resource
 
-from flask import g, make_response
-from flask_restful import Resource, Api
-
-from .utils import base64d
-from .models import *
-from .challenge import (
-    init_config as c_init_config,
-    verify_challenge,
-    check_csr_and_return_cert,
-)
+from .challenge import RequestCtx, check_csr_and_return_cert
+from .challenge import init_config as c_init_config
+from .challenge import verify_challenge
 from .exceptions import ACMEError
+from .models import *
+from .utils import base64d
 
 api = Api()
 
@@ -264,7 +261,10 @@ class OrderFinalize(Resource):
         if order.status != OrderStatus.ready:
             raise ACMEError("", 403, "orderNotReady")
 
-        certificate = check_csr_and_return_cert(csr, order)
+        certificate = check_csr_and_return_cert(csr, order, request_ctx=RequestCtx(
+            remote_ip=request.remote_addr,
+            order=order,
+        ))
 
         cert = Certificate(certificate=certificate)
         db.session.add(cert)

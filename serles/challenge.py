@@ -1,23 +1,24 @@
-import ssl
+import base64
+import hashlib
 import json
 import socket
-import hashlib
-import base64
-import requests
+import ssl
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Optional
+
+import dns.resolver
 import jwcrypto.jwk  # fedora package: python3-jwcrypto.noarch
 import jwcrypto.jws
-import dns.resolver
-
-from datetime import datetime, timezone
-
+import requests
 from cryptography import x509  # python3-cryptography.x86_64
 from cryptography.hazmat.backends import default_backend as x509_backend
 from cryptography.hazmat.primitives import serialization
 
-from .utils import get_ptr, ip_in_ranges, normalize, ber_parse
 from .configloader import get_config
-from .models import *
 from .exceptions import ACMEError
+from .models import *
+from .utils import ber_parse, get_ptr, ip_in_ranges, normalize
 
 config = {}
 backend = None
@@ -239,8 +240,12 @@ def alpn_challenge(challenge):  # RFC 8737 §3
 
     return None, None  # no error occurred :)
 
+@dataclass
+class RequestCtx:
+    remote_ip: str
+    order: Order
 
-def check_csr_and_return_cert(csr_der, order):
+def check_csr_and_return_cert(csr_der, order, request_ctx: Optional[RequestCtx] = None):
     """ validate CSR and pass to backend
 
     Checks that the CSR only contains domains from previously validated
@@ -288,7 +293,7 @@ def check_csr_and_return_cert(csr_der, order):
     if config["forceTemplateDN"] or not subject_dn:
         subject_dn = config["subjectNameTemplate"].format(SAN=alt_names, MAIL=email)
 
-    certificate, error = backend.sign(csr_pem, subject_dn, alt_names, email)
+    certificate, error = backend.sign(csr_pem, subject_dn, alt_names, email, request_ctx=request_ctx)
 
     if error:
         raise ACMEError(error, 400, "badCSR")

@@ -3,10 +3,10 @@
 
 import base64
 import csv
-import requests
 import secrets
-
 from abc import ABC, abstractmethod
+
+import requests
 
 
 class Backend(ABC):
@@ -20,5 +20,5 @@ class Backend(ABC):
         self.config = config
 
     @abstractmethod
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         pass
