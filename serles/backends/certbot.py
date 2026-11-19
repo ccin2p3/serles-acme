@@ -61,7 +61,7 @@ class Backend:
         if not os.access(self.path, os.X_OK):
             raise Exception(f"certbot '{self.path}' not executable")
 
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         with tempfile.TemporaryDirectory(prefix="serles-certbot") as tmpdir:
 
             # Write explicit configuration to temporary file if a config file is not provided

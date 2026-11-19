@@ -8,8 +8,9 @@ from .configloader import get_config
 from .models import IdentifierTypes
 from .exceptions import ACMEError
 
+from .ccin2p3_request_ctx import RequestCtx
 
-def check_csr_and_return_cert(csr_der, order):
+def check_csr_and_return_cert(csr_der, order, request_ctx: RequestCtx | None = None):
     """ validate CSR and pass to backend
 
     Checks that the CSR only contains domains from previously validated
@@ -74,7 +75,7 @@ def check_csr_and_return_cert(csr_der, order):
     if config["forceTemplateDN"] or not subject_dn:
         subject_dn = config["subjectNameTemplate"].format(SAN=alt_names, MAIL=email)
 
-    certificate, error = backend.sign(csr_pem, subject_dn, alt_names, email)
+    certificate, error = backend.sign(csr_pem, subject_dn, alt_names, email, request_ctx=request_ctx)
 
     if error:
         raise ACMEError(error, 400, "badCSR")

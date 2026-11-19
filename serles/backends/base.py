@@ -20,5 +20,5 @@ class Backend(ABC):
         self.config = config
 
     @abstractmethod
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         pass

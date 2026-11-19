@@ -22,6 +22,9 @@ from .challenge import verify_challenge
 from .certificate import check_csr_and_return_cert
 from .exceptions import ACMEError
 
+from flask import request
+from .ccin2p3_request_ctx import RequestCtx
+
 api = Api()
 
 
@@ -275,7 +278,10 @@ class OrderFinalize(Resource):
         if order.status != OrderStatus.ready:
             raise ACMEError("", 403, "orderNotReady")
 
-        certificate = check_csr_and_return_cert(csr, order)
+        certificate = check_csr_and_return_cert(csr, order, request_ctx=RequestCtx(
+            remote_ip=request.remote_addr,
+            order=order,
+        ))
 
         cert = Certificate(certificate=certificate)
         db.session.add(cert)

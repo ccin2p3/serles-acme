@@ -22,7 +22,7 @@ class Backend:
                 "-out", self.cacert,
             ])
 
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         x509 = subprocess.run([
             "openssl", "x509", "-req",
             "-CA", self.cacert,

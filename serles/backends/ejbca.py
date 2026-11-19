@@ -83,7 +83,7 @@ class EjbcaBackend:
         self.client = zeep.Client(apiUrl, transport=transport)
         self.userData = self.client.get_type("ns0:userDataVOWS")
 
-    def sign(self, csr, subjectDN, subjectAltNames, email):
+    def sign(self, csr, subjectDN, subjectAltNames, email, **kwargs):
         subjectAltName = ",".join(typed_ident(name) for name in subjectAltNames)
 
         csr_obj = x509.load_pem_x509_csr(csr)
